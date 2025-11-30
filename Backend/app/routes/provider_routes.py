@@ -31,9 +31,8 @@ def become_provider():
     new_provider = Provider(
         user_id=user.id,
         service_type=service_type,
-        bio=data["bio"],
-        rating=data["rating"],
-        experience=data["experience"]
+        bio=data.get("bio"),
+        experience=data.get("experience")
 
     )
     db.session.add(new_provider)
@@ -91,4 +90,3 @@ def get_provider_profile():
 def get_all_providers():
     providers = Provider.query.all()
     return jsonify([provider.to_dict() for provider in providers]), 200
-

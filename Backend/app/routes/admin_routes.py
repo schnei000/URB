@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from ..extensions import db
 from ..models.user import User, Category, Product
 from ..models.provider import Provider
@@ -16,7 +17,7 @@ def admin_required(fn):
         if not user or user.role != "admin":
             return jsonify({"message": "Accès réservé aux administrateurs."}), 403
         return fn(*args, **kwargs)
-    # Renommer le wrapper pour éviter les conflits de noms dans Flask
+
     wrapper.__name__ = fn.__name__
     return wrapper
 
@@ -45,18 +46,13 @@ def change_user_role(user_id):
     if not new_role:
         return jsonify({"message": "Le champ 'role' est requis"}), 400
 
-    # Vous pouvez ajouter une validation pour les rôles autorisés
     allowed_roles = ["client", "provider", "admin"]
     if new_role not in allowed_roles:
         return jsonify({"message": f"Rôle invalide. Les rôles autorisés sont : {', '.join(allowed_roles)}"}), 400
 
     user_to_modify.role = new_role
     db.session.commit()
-
-    return jsonify({
-        "message": f"Le rôle de l'utilisateur {user_to_modify.name} a été mis à jour à '{new_role}'",
-        "user": user_to_modify.to_dict()
-    }), 200
+    return jsonify(user_to_modify.to_dict()), 200
 
 # Supprimer un utilisateur
 @admin_bp.route("/users/<int:user_id>", methods=["DELETE"])
@@ -108,8 +104,9 @@ def create_category():
     new_category = Category(name=name, description=data.get("description"))
     db.session.add(new_category)
     db.session.commit()
-    return jsonify({"message": "Catégorie créée avec succès", "category": new_category.to_dict()}), 201
+    return jsonify(new_category.to_dict()), 201
 
+# recuperer tout les categories
 @admin_bp.route("/categories", methods=["GET"])
 @admin_required
 def get_all_categories():
@@ -123,7 +120,7 @@ def update_category(category_id):
     """Met à jour une catégorie. (Admin seulement)"""
     category = Category.query.get_or_404(category_id)
     data = request.get_json()
-    
+
     name = data.get("name")
     if name and Category.query.filter(Category.name == name, Category.id != category_id).first():
         return jsonify({"message": f"La catégorie '{name}' existe déjà"}), 409
@@ -131,7 +128,7 @@ def update_category(category_id):
     category.name = name or category.name
     category.description = data.get("description", category.description)
     db.session.commit()
-    return jsonify({"message": "Catégorie mise à jour avec succès", "category": category.to_dict()}), 200
+    return jsonify(category.to_dict()), 200
 
 @admin_bp.route("/categories/<int:category_id>", methods=["DELETE"])
 @admin_required
@@ -164,7 +161,7 @@ def create_product():
     )
     db.session.add(new_product)
     db.session.commit()
-    return jsonify({"message": "Produit créé avec succès", "product": new_product.to_dict()}), 201
+    return jsonify(new_product.to_dict()), 201
 
 @admin_bp.route("/products", methods=["GET"])
 @admin_required
@@ -187,9 +184,8 @@ def update_product(product_id):
     product.price = data.get("price", product.price)
     product.description = data.get("description", product.description)
     product.category_id = data.get("category_id", product.category_id)
-    
     db.session.commit()
-    return jsonify({"message": "Produit mis à jour avec succès", "product": product.to_dict()}), 200
+    return jsonify(product.to_dict()), 200
 
 @admin_bp.route("/products/<int:product_id>", methods=["DELETE"])
 @admin_required

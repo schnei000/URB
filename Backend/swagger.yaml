@@ -1,0 +1,774 @@
+openapi: 3.0.0
+info:
+  title: API Novatech
+  description: Documentation complète de l'API pour le projet de portfolio, incluant l'authentification, la gestion des produits, des prestataires, et plus encore.
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: Serveur de développement local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        role:
+          type: string
+          enum: [client, provider, admin]
+          example: "client"
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        category_id:
+          type: integer
+        user_id:
+          type: integer
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+
+    ServiceType:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        service_type:
+          type: string
+        bio:
+          type: string
+        experience:
+          type: string
+
+    ServiceRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        client_id:
+          type: integer
+        provider_id:
+          type: integer
+        service_type:
+          type: string
+        description:
+          type: string
+        preferred_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [pending, accepted, rejected, in_progress, completed, cancelled]
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Inscription d'un nouvel utilisateur
+      tags: [Authentification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Utilisateur enregistré avec succès
+        '400':
+          description: Données manquantes
+        '409':
+          description: Email déjà utilisé
+
+  /auth/login:
+    post:
+      summary: Connexion d'un utilisateur
+      tags: [Authentification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Connexion réussie
+        '401':
+          description: Identifiants invalides
+
+  /auth/profile:
+    get:
+      summary: Récupérer le profil de l'utilisateur connecté
+      tags: [Authentification]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profil de l'utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Non authentifié
+        '404':
+          description: Utilisateur non trouvé
+
+  /user/profile:
+    put:
+      summary: Mettre à jour le profil de l'utilisateur
+      tags: [Utilisateurs]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Profil mis à jour
+        '404':
+          description: Utilisateur non trouvé
+
+  /admin/users:
+    get:
+      summary: Récupérer tous les utilisateurs
+      tags: [Administration]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des utilisateurs
+        '403':
+          description: Accès réservé aux administrateurs
+
+  /admin/users/{user_id}/role:
+    put:
+      summary: Changer le rôle d'un utilisateur
+      tags: [Administration]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [client, provider, admin]
+      responses:
+        '200':
+          description: Rôle mis à jour
+        '403':
+          description: Non autorisé
+        '404':
+          description: Utilisateur non trouvé
+
+  /admin/users/{user_id}:
+    delete:
+      summary: Supprimer un utilisateur
+      tags: [Administration]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Utilisateur supprimé
+        '403':
+          description: Non autorisé
+        '404':
+          description: Utilisateur non trouvé
+
+  /admin/stats:
+    get:
+      summary: Obtenir les statistiques générales
+      tags: [Administration]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Statistiques de l'application
+        '403':
+          description: Non autorisé
+
+  /admin/categories:
+    post:
+      summary: Créer une nouvelle catégorie
+      tags: [Catégories]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Catégorie créée
+        '403':
+          description: Non autorisé
+        '409':
+          description: Catégorie existe déjà
+
+    get:
+      summary: Récupérer toutes les catégories
+      tags: [Catégories]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des catégories
+        '403':
+          description: Non autorisé
+
+  /admin/categories/{category_id}:
+    put:
+      summary: Mettre à jour une catégorie
+      tags: [Catégories]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Catégorie mise à jour
+        '403':
+          description: Non autorisé
+
+    delete:
+      summary: Supprimer une catégorie
+      tags: [Catégories]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Catégorie supprimée
+        '403':
+          description: Non autorisé
+
+  /admin/products:
+    post:
+      summary: Créer un nouveau produit
+      tags: [Produits]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                category_id:
+                  type: integer
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Produit créé
+        '403':
+          description: Non autorisé
+
+    get:
+      summary: Récupérer tous les produits
+      tags: [Produits]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des produits
+        '403':
+          description: Non autorisé
+
+  /admin/products/{product_id}:
+    put:
+      summary: Mettre à jour un produit
+      tags: [Produits]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                description:
+                  type: string
+                category_id:
+                  type: integer
+      responses:
+        '200':
+          description: Produit mis à jour
+        '403':
+          description: Non autorisé
+
+    delete:
+      summary: Supprimer un produit
+      tags: [Produits]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Produit supprimé
+        '403':
+          description: Non autorisé
+
+  /provider/register:
+    post:
+      summary: S'enregistrer comme prestataire
+      tags: [Prestataires]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_type:
+                  type: string
+                bio:
+                  type: string
+                experience:
+                  type: string
+      responses:
+        '201':
+          description: Enregistrement en tant que prestataire réussi
+        '403':
+          description: Non autorisé
+        '409':
+          description: Utilisateur est déjà prestataire
+
+  /provider/profile:
+    get:
+      summary: Récupérer le profil du prestataire
+      tags: [Prestataires]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profil du prestataire
+        '403':
+          description: Non autorisé
+
+    put:
+      summary: Mettre à jour le profil du prestataire
+      tags: [Prestataires]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_type:
+                  type: string
+                bio:
+                  type: string
+                experience:
+                  type: string
+      responses:
+        '200':
+          description: Profil mis à jour
+        '403':
+          description: Non autorisé
+
+  /provider/all:
+    get:
+      summary: Récupérer tous les prestataires
+      tags: [Prestataires]
+      responses:
+        '200':
+          description: Liste de tous les prestataires
+
+  /service-types/:
+    get:
+      summary: Récupérer tous les types de service
+      tags: [Types de Service]
+      responses:
+        '200':
+          description: Liste des types de service
+
+    post:
+      summary: Créer un type de service
+      tags: [Types de Service]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Type de service créé
+        '403':
+          description: Non autorisé
+
+  /service-types/{service_type_id}:
+    get:
+      summary: Récupérer un type de service
+      tags: [Types de Service]
+      parameters:
+        - name: service_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Détails du type de service
+        '404':
+          description: Type non trouvé
+
+    put:
+      summary: Mettre à jour un type de service
+      tags: [Types de Service]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: service_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Type de service mis à jour
+        '403':
+          description: Non autorisé
+
+    delete:
+      summary: Supprimer un type de service
+      tags: [Types de Service]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: service_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Type de service supprimé
+        '403':
+          description: Non autorisé
+
+  /request/create:
+    post:
+      summary: Créer une demande de service
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_type:
+                  type: string
+                description:
+                  type: string
+                preferred_date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Demande créée
+        '403':
+          description: Seuls les clients peuvent créer
+
+  /request/client/requests:
+    get:
+      summary: Récupérer les demandes du client
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des demandes du client
+        '403':
+          description: Seuls les clients peuvent accéder
+
+  /request/provider/requests:
+    get:
+      summary: Récupérer les demandes du prestataire
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des demandes pour le prestataire
+        '403':
+          description: Seuls les prestataires peuvent accéder
+
+  /request/provider/accept/{request_id}:
+    post:
+      summary: Accepter une demande de service
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Demande acceptée
+        '403':
+          description: Non autorisé
+        '404':
+          description: Demande non trouvée
+
+  /request/provider/reject/{request_id}:
+    post:
+      summary: Refuser une demande de service
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Demande refusée
+        '403':
+          description: Non autorisé
+        '404':
+          description: Demande non trouvée
+
+  /request/client/update_status/{request_id}:
+    post:
+      summary: Mettre à jour le statut d'une demande
+      tags: [Demandes de Service]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: request_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [in_progress, completed, cancelled]
+      responses:
+        '200':
+          description: Statut mis à jour
+        '403':
+          description: Non autorisé
+        '404':
+          description: Demande non trouvée
+
+  /upload/:
+    post:
+      summary: Télécharger un fichier
+      tags: [Fichiers]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Fichier téléchargé avec succès
+        '400':
+          description: Fichier manquant ou type non autorisé
+
+tags:
+  - name: Authentification
+    description: Endpoints d'authentification
+  - name: Utilisateurs
+    description: Gestion des profils utilisateurs
+  - name: Administration
+    description: Endpoints réservés aux administrateurs
+  - name: Catégories
+    description: Gestion des catégories
+  - name: Produits
+    description: Gestion des produits
+  - name: Prestataires
+    description: Gestion des prestataires de service
+  - name: Types de Service
+    description: Gestion des types de service disponibles
+  - name: Demandes de Service
+    description: Gestion des demandes de service
+  - name: Fichiers
+    description: Gestion des fichiers téléchargés

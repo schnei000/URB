@@ -1,4 +1,4 @@
-from .user import User
+from .user import User, Category, Product
 from .provider import Provider
 from .service_type import ServiceType
 from .request import Request

@@ -1,4 +1,4 @@
-from ..extensions import db
+from ..extensions import db, bcrypt
 from datetime import datetime
 
 class User(db.Model):
@@ -8,12 +8,16 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(50), default="clients")
+    role = db.Column(db.String(50), default="client")
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # relation
     products = db.relationship("Product", backref="user", lazy=True)
+    
+    def set_password(self, password):
+        """Hash et stocke le mot de passe."""
+        self.password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
     
     def to_dict(self):
         return {
@@ -51,6 +55,7 @@ class Product(db.Model):
     description = db.Column(db.String(255))
     price = db.Column(db.Float, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     def to_dict(self):
         return {

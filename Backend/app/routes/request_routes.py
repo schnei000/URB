@@ -4,6 +4,7 @@ from ..extensions import db
 from ..models.user import User
 from ..models.provider import Provider
 from ..models.request import Request
+from ..sockets.notification import send_notification_to_user # Importation de la fonction de notification
 
 request_bp = Blueprint("request_bp", __name__, url_prefix="/request")
 
@@ -110,6 +111,13 @@ def accept_request(request_id):
     service_request.provider_id = provider.id
 
     db.session.commit()
+
+    # Envoyer une notification au client via Socket.IO
+    send_notification_to_user(
+        user_id=service_request.client_id,
+        event_name='request_accepted',
+        data={'request_id': service_request.id, 'message': f'Votre demande de service a été acceptée par le prestataire {provider.user.name}!'}
+    )
 
     return jsonify({"message": "Demande de service acceptée avec succès"}), 200
 
