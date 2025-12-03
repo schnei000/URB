@@ -1,71 +1,81 @@
-import React, { useContext, useState } from 'react';
-import { AuthContext } from './context/AuthContext';
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import './App.css';
 
-function App() {
-  const { user, token, loading, error, register, login, logout } = useContext(AuthContext);
+// Pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import DashBoard from './pages/DashBoard';
+import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
+import AdminProjects from './pages/AdminProjects';
+import NotFound from './pages/NotFound';
 
-  // États pour les formulaires
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+// Composants
+// import Navbar from './components/layout/Navbar';
+// import Sidebar from './components/layout/Sidebar';
 
-  const [registerName, setRegisterName] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [registerRole, setRegisterRole] = useState('client');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    login({ email: loginEmail, password: loginPassword });
-  };
-
-  const handleRegister = (e) => {
-    e.preventDefault();
-    register({ name: registerName, email: registerEmail, password: registerPassword, role: registerRole });
-  };
-
-  return (
-    <div className="App">
-      <h1>Mon Application de Services</h1>
-      
-      {loading && <p>Chargement...</p>}
-      {error && <p style={{ color: 'red' }}>Erreur: {error}</p>}
-
-      {token ? (
-        <div>
-          <h2>Bienvenue, {user?.name}!</h2>
-          <p>Email: {user?.email}</p>
-          <p>Rôle: {user?.role}</p>
-          <button onClick={logout}>Se déconnecter</button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <div>
-            <h2>Inscription</h2>
-            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '250px' }}>
-              <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} placeholder="Nom complet" required />
-              <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} placeholder="Email" required />
-              <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} placeholder="Mot de passe" required />
-              <select value={registerRole} onChange={(e) => setRegisterRole(e.target.value)}>
-                <option value="client">Client</option>
-                <option value="provider">Prestataire</option>
-              </select>
-              <button type="submit">S'inscrire</button>
-            </form>
-          </div>
-
-          <div>
-            <h2>Connexion</h2>
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '250px' }}>
-              <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="Email" required />
-              <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="Mot de passe" required />
-              <button type="submit">Se connecter</button>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+// Route protégée
+function ProtectedRoute({ children }) {
+    const { token } = useAuth();
+    return token ? children : <Navigate to="/login" replace />;
 }
 
-export default App
+function App() {
+    const { token } = useAuth();
+
+    return (
+        <Router>
+            <div className="App">
+                {/* {token && <Navbar />} */}
+                <Routes>
+                    {/* Routes publiques */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" replace />} />
+                    <Route path="/register" element={!token ? <Register /> : <Navigate to="/dashboard" replace />} />
+
+                    {/* Routes protégées */}
+                    <Route 
+                        path="/dashboard" 
+                        element={
+                            <ProtectedRoute>
+                                <DashBoard />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/projects" 
+                        element={
+                            <ProtectedRoute>
+                                <Projects />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/projects/:id" 
+                        element={
+                            <ProtectedRoute>
+                                <ProjectDetail />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/admin/projects" 
+                        element={
+                            <ProtectedRoute>
+                                <AdminProjects />
+                            </ProtectedRoute>
+                        } 
+                    />
+
+                    {/* Route 404 */}
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </div>
+        </Router>
+    );
+}
+
+export default App;
