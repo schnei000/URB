@@ -14,8 +14,7 @@ import AdminProjects from './pages/AdminProjects';
 import NotFound from './pages/NotFound';
 
 // Composants
-// import Navbar from './components/layout/Navbar';
-// import Sidebar from './components/layout/Sidebar';
+import Navbar from './components/layout/Navbar';
 
 // Route protégée
 function ProtectedRoute({ children }) {
@@ -29,7 +28,7 @@ function App() {
     return (
         <Router>
             <div className="App">
-                {/* {token && <Navbar />} */}
+                {token && <Navbar />}
                 <Routes>
                     {/* Routes publiques */}
                     <Route path="/" element={<Home />} />

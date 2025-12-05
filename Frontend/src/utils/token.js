@@ -1,4 +1,4 @@
-const Token_KEY = "token";
+const Token_KEY = "authToken";
 const USER_KEY = "user";
 
 export function setToken(token) {

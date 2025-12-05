@@ -1,5 +1,6 @@
 from flask import Flask
 from flasgger import Swagger
+from flask_cors import CORS
 from .extensions import db, bcrypt
 from .models import User, Category, Product, Provider, Request, Review, ServiceType, Admin
 from .routes.auth_routes import auth_bp
@@ -9,6 +10,7 @@ from .routes.request_routes import request_bp
 from .routes.service_type_routes import service_type_bp
 from .routes.upload_routes import upload_bp
 from .routes.user_routes import user_bp
+from .routes.project_routes import project_bp
 from .utils.error_handlers import handle_error
 from flask_jwt_extended import JWTManager
 import os
@@ -32,6 +34,13 @@ def create_app(config_class=Config, testing=False):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt = JWTManager(app)
+    
+    # --- Configuration CORS ---
+    CORS(app, resources={
+        r"/auth/*": {"origins": ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]},
+        r"/projects/*": {"origins": ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]},
+        r"/api/*": {"origins": ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]}
+    })
 
     # --- Configuration de Flasgger (Swagger UI) ---
     # C'est la partie cruciale pour que /apidocs fonctionne.
@@ -53,6 +62,7 @@ def create_app(config_class=Config, testing=False):
     app.register_blueprint(service_type_bp)
     app.register_blueprint(upload_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(project_bp)
 
     # --- Enregistrement du gestionnaire d'erreur ---
     app.register_error_handler(Exception, handle_error)

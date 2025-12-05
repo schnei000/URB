@@ -34,7 +34,7 @@ def register():
     db.session.commit()
 
     access_token = create_access_token(identity=new_user.id)
-    return jsonify({"message": "Utilisateur enregistré avec succès", "user": new_user.name, "access_token": access_token}), 201
+    return jsonify({"message": "Utilisateur enregistré avec succès", "user": new_user.to_dict(), "access_token": access_token}), 201
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
@@ -50,7 +50,7 @@ def login():
         return jsonify({"message" : "Email ou mot de passe invalide"}), 401
 
     access_token = create_access_token(identity=user.id)
-    return jsonify({"message": "Connexion réussie", "user": user.name, "access_token": access_token}), 200
+    return jsonify({"message": "Connexion réussie", "user": user.to_dict(), "access_token": access_token}), 200
 
 @auth_bp.route("/profile", methods=["GET"])
 @jwt_required()
@@ -64,3 +64,18 @@ def profile():
         return jsonify({"message": "Utilisateur non trouvé"}), 404
 
     return jsonify(user.to_dict()), 200
+
+# Route de débogage temporaire (à supprimer en production)
+@auth_bp.route("/debug/test", methods=["GET"])
+def debug_test():
+    """Route temporaire pour tester l'API"""
+    return jsonify({"status": "ok", "message": "API is working"}), 200
+
+@auth_bp.route("/debug/users", methods=["GET"])
+def debug_users():
+    """Route temporaire pour voir les utilisateurs"""
+    try:
+        users = User.query.all()
+        return jsonify([user.to_dict() for user in users]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

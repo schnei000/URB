@@ -45,12 +45,18 @@ export const ProjectProvider = ({ children }) => {
                 const projects = await getProjects();
                 dispatch({
                     type: 'SET_PROJECTS',
-                    payload: projects
+                    payload: projects || []
                 });
             } catch (error) {
+                console.error('Error fetching projects:', error);
                 dispatch({
                     type: 'SET_ERROR',
                     payload: error.message
+                });
+                // Mettre des projets vides pour ne pas bloquer l'affichage
+                dispatch({
+                    type: 'SET_PROJECTS',
+                    payload: []
                 });
             }
         };
@@ -58,7 +64,11 @@ export const ProjectProvider = ({ children }) => {
         // Charger les projets uniquement si un token existe
         const token = localStorage.getItem('authToken');
         if (token) {
-            fetchProjects();
+            // Petit délai pour s'assurer que le token est bien disponible
+            const timer = setTimeout(() => {
+                fetchProjects();
+            }, 100);
+            return () => clearTimeout(timer);
         }
     }, []);
 
