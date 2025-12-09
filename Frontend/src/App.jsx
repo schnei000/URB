@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import './App.css';
 
@@ -14,12 +14,33 @@ import AdminProjects from './pages/AdminProjects';
 import NotFound from './pages/NotFound';
 
 // Composants
-import Navbar from './components/layout/Navbar';
+import AppLayout from './components/layout/AppLayout'; // Layout pour l'application connectée
+import PublicLayout from './components/layout/PublicLayout'; // Layout pour les pages publiques
 
 // Route protégée
 function ProtectedRoute({ children }) {
     const { token } = useAuth();
     return token ? children : <Navigate to="/login" replace />;
+}
+
+// Layout pour les pages publiques
+function PublicRoutes() {
+    return (
+        <PublicLayout>
+            <Outlet />
+        </PublicLayout>
+    );
+}
+
+// Layout pour les pages de l'application (une fois connecté)
+function AppRoutes() {
+    return (
+        <ProtectedRoute>
+            <AppLayout>
+                <Outlet />
+            </AppLayout>
+        </ProtectedRoute>
+    );
 }
 
 function App() {
@@ -28,46 +49,21 @@ function App() {
     return (
         <Router>
             <div className="App">
-                {token && <Navbar />}
                 <Routes>
-                    {/* Routes publiques */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" replace />} />
-                    <Route path="/register" element={!token ? <Register /> : <Navigate to="/dashboard" replace />} />
+                    {/* Routes publiques avec leur propre layout */}
+                    <Route element={<PublicRoutes />}>
+                        <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Home />} />
+                        <Route path="/login" element={token ? <Navigate to="/dashboard" /> : <Login />} />
+                        <Route path="/register" element={token ? <Navigate to="/dashboard" /> : <Register />} />
+                    </Route>
 
-                    {/* Routes protégées */}
-                    <Route 
-                        path="/dashboard" 
-                        element={
-                            <ProtectedRoute>
-                                <DashBoard />
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/projects" 
-                        element={
-                            <ProtectedRoute>
-                                <Projects />
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/projects/:id" 
-                        element={
-                            <ProtectedRoute>
-                                <ProjectDetail />
-                            </ProtectedRoute>
-                        } 
-                    />
-                    <Route 
-                        path="/admin/projects" 
-                        element={
-                            <ProtectedRoute>
-                                <AdminProjects />
-                            </ProtectedRoute>
-                        } 
-                    />
+                    {/* Routes protégées avec le layout de l'application */}
+                    <Route element={<AppRoutes />}>
+                        <Route path="/dashboard" element={<DashBoard />} />
+                        <Route path="/projects" element={<Projects />} />
+                        <Route path="/projects/:id" element={<ProjectDetail />} />
+                        <Route path="/admin/projects" element={<AdminProjects />} />
+                    </Route>
 
                     {/* Route 404 */}
                     <Route path="*" element={<NotFound />} />

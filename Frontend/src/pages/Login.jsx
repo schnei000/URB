@@ -12,14 +12,13 @@ function Login() {
     });
 
     const [localError, setLocalError] = useState("");
-    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     // Rediriger après connexion réussie
     useEffect(() => {
-        if (isLoggingIn && user && token) {
+        if (user && token) {
             navigate('/dashboard');
         }
-    }, [user, token, isLoggingIn, navigate]);
+    }, [user, token, navigate]);
 
     function handleChange(e) {
         setFormData({
@@ -31,21 +30,18 @@ function Login() {
     async function handleSubmit(e) {
         e.preventDefault();
         setLocalError("");
-        try {
-            setIsLoggingIn(true);
-            await login(formData);
-        } catch (err) {
-            setLocalError(err.message || "Échec de la connexion. Veuillez réessayer.");
-            setIsLoggingIn(false);
+        const success = await login(formData);
+        if (!success) {
+            setLocalError("Échec de la connexion. Email ou mot de passe incorrect.");
         }
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#1A1B2D] flex items-center justify-center px-4">
             <div className="w-full max-w-md">
-                <div className="bg-white rounded-lg shadow-lg p-8">
+                <div className="card p-8">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">ProjectHub</h1>
+                        <h1 className="text-3xl font-bold">ProjectHub</h1>
                         <p className="text-gray-600 mt-2">Connexion à votre compte</p>
                     </div>
 
@@ -57,7 +53,7 @@ function Login() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Email
                             </label>
                             <input
@@ -72,7 +68,7 @@ function Login() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 Mot de passe
                             </label>
                             <input
@@ -89,7 +85,7 @@ function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed py-3 text-lg"
+                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                         >
                             {loading ? 'Connexion en cours...' : 'Se connecter'}
                         </button>
@@ -98,7 +94,7 @@ function Login() {
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
                             Pas encore de compte ?{' '}
-                            <Link to="/register" className="text-blue-600 font-medium hover:underline">
+                            <Link to="/register" className="text-[#2A68FF] font-medium hover:underline">
                                 S'inscrire
                             </Link>
                         </p>

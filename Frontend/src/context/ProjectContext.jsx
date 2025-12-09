@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect, useContext } from 'react';
+import { createContext, useReducer, useContext, useCallback } from 'react';
 import { getProjects } from '../api/projectApi';
 
 const ProjectContext = createContext();
@@ -37,43 +37,28 @@ function projectReducer(state, action) {
 
 export const ProjectProvider = ({ children }) => {
     const [state, dispatch] = useReducer(projectReducer, initialState);
-    
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                dispatch({ type: 'LOADING_START' });
-                const projects = await getProjects();
-                dispatch({
-                    type: 'SET_PROJECTS',
-                    payload: projects || []
-                });
-            } catch (error) {
-                console.error('Error fetching projects:', error);
-                dispatch({
-                    type: 'SET_ERROR',
-                    payload: error.message
-                });
-                // Mettre des projets vides pour ne pas bloquer l'affichage
-                dispatch({
-                    type: 'SET_PROJECTS',
-                    payload: []
-                });
-            }
-        };
 
-        // Charger les projets uniquement si un token existe
+    // `useCallback` pour mémoriser la fonction et éviter les re-créations inutiles
+    const fetchProjects = useCallback(async () => {
         const token = localStorage.getItem('authToken');
-        if (token) {
-            // Petit délai pour s'assurer que le token est bien disponible
-            const timer = setTimeout(() => {
-                fetchProjects();
-            }, 100);
-            return () => clearTimeout(timer);
+        if (!token) {
+            dispatch({ type: 'SET_PROJECTS', payload: [] });
+            return;
         }
-    }, []);
+
+        dispatch({ type: 'LOADING_START' });
+        try {
+            const projects = await getProjects();
+            dispatch({ type: 'SET_PROJECTS', payload: projects || [] });
+        } catch (error) {
+            console.error('Error fetching projects:', error);
+            dispatch({ type: 'SET_ERROR', payload: error.message || 'Failed to fetch projects' });
+        }
+    }, [dispatch]);
 
     return (
-        <ProjectContext.Provider value={{ state, dispatch }}>
+        // Exposer la fonction `fetchProjects` dans la valeur du contexte
+        <ProjectContext.Provider value={{ state, dispatch, fetchProjects }}>
             {children}
         </ProjectContext.Provider>
     );

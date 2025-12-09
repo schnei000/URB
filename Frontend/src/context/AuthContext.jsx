@@ -38,6 +38,7 @@ export const AuthProvider = ({ children}) => {
                 type: "AUTH_FAILURE",
                 error: error.message
             });
+            throw error; // Relancer l'erreur pour que le composant puisse la gérer
         }
     }
     // Action: login
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children}) => {
                 type: "AUTH_FAILURE",
                 error: error.message
             });
+            throw error; // Relancer l'erreur pour que le composant puisse la gérer
         }
     }
     // Action: logout

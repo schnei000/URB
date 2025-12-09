@@ -16,14 +16,13 @@ function Register() {
     });
 
     const [localError, setLocalError] = useState("");
-    const [isRegistering, setIsRegistering] = useState(false);
 
     // Rediriger après inscription réussie
     useEffect(() => {
-        if (isRegistering && user && token) {
+        if (user && token) {
             navigate('/dashboard');
         }
-    }, [user, token, isRegistering, navigate]);
+    }, [user, token, navigate]);
 
     function handleChange(e) {
         setFormData({
@@ -58,7 +57,6 @@ function Register() {
         }
 
         try {
-            setIsRegistering(true);
             await register({
                 name: formData.name,
                 email: formData.email,
@@ -67,7 +65,6 @@ function Register() {
             });
         } catch (err) {
             setLocalError(err.message || "Échec de l'inscription. Veuillez réessayer.");
-            setIsRegistering(false);
         }
     }
 

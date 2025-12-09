@@ -88,53 +88,26 @@ function ProjectDetail() {
         {/* Card principal */}
         <div className="card mb-8">
           {/* En-tête */}
-          <div className="mb-6 pb-6 border-b border-gray-200">
+          <div className="mb-6 pb-6 border-b border-gray-200 dark:border-slate-700">
             <div className="flex items-start justify-between mb-4">
-              <h1 className="text-4xl font-bold text-gray-900">{project.name}</h1>
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                project.status === 'draft' 
-                  ? 'bg-yellow-100 text-yellow-800' 
-                  : project.status === 'active'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
-                {project.status === 'draft' ? '📝 Brouillon' : project.status === 'active' ? '✅ Actif' : '🔒 Fermé'}
-              </span>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">{project.name}</h1>
+              <StatusBadge status={project.status} />
             </div>
           </div>
 
           {/* Description */}
           {project.description && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
-              <p className="text-gray-700 leading-relaxed text-lg">{project.description}</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-200 mb-3">Description</h2>
+              <p className="text-gray-700 dark:text-slate-300 leading-relaxed text-lg">{project.description}</p>
             </div>
           )}
 
           {/* Grille d'informations */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-            {project.budget && (
-              <div>
-                <p className="text-gray-600 text-sm">💰 Budget</p>
-                <p className="text-2xl font-bold text-blue-600">{project.budget}€</p>
-              </div>
-            )}
-            
-            {project.deadline && (
-              <div>
-                <p className="text-gray-600 text-sm">📅 Deadline</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {new Date(project.deadline).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
-            )}
-
-            {project.category && (
-              <div>
-                <p className="text-gray-600 text-sm">🏷️ Catégorie</p>
-                <p className="text-2xl font-bold text-gray-900">{project.category}</p>
-              </div>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-blue-50 dark:bg-slate-800 rounded-lg border border-blue-200 dark:border-slate-700">
+            <InfoBlock emoji="💰" label="Budget" value={project.budget ? `${project.budget}€` : 'N/A'} valueClass="text-blue-600 dark:text-blue-400" />
+            <InfoBlock emoji="📅" label="Deadline" value={project.deadline ? new Date(project.deadline).toLocaleDateString('fr-FR') : 'N/A'} />
+            <InfoBlock emoji="🏷️" label="Catégorie" value={project.category || 'N/A'} />
           </div>
 
           {/* Informations supplémentaires */}
@@ -142,14 +115,14 @@ function ProjectDetail() {
             {project.client_name && (
               <div className="p-4 bg-gray-100 rounded-lg">
                 <p className="text-gray-600 text-sm mb-1">👤 Client</p>
-                <p className="text-lg font-semibold text-gray-900">{project.client_name}</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-200">{project.client_name}</p>
               </div>
             )}
 
             {project.created_at && (
               <div className="p-4 bg-gray-100 rounded-lg">
                 <p className="text-gray-600 text-sm mb-1">📌 Créé le</p>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-lg font-semibold text-gray-900 dark:text-slate-200">
                   {new Date(project.created_at).toLocaleDateString('fr-FR')}
                 </p>
               </div>
@@ -166,5 +139,34 @@ function ProjectDetail() {
     </div>
   );
 }
+
+const StatusBadge = ({ status }) => {
+  const statusConfig = {
+    draft: { label: '📝 Brouillon', classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' },
+    active: { label: '✅ Actif', classes: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
+    closed: { label: '🔒 Fermé', classes: 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-300' },
+  };
+
+  const config = statusConfig[status] || statusConfig.closed;
+
+  return (
+    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${config.classes}`}>
+      {config.label}
+    </span>
+  );
+};
+
+const InfoBlock = ({ emoji, label, value, valueClass = 'text-gray-900 dark:text-slate-100' }) => {
+  if (!value) return null;
+
+  return (
+    <div>
+      <p className="text-gray-600 dark:text-slate-400 text-sm">{emoji} {label}</p>
+      <p className={`text-2xl font-bold ${valueClass}`}>
+        {value}
+      </p>
+    </div>
+  );
+};
 
 export default ProjectDetail;

@@ -35,6 +35,23 @@ def create_app(config_class=Config, testing=False):
     bcrypt.init_app(app)
     jwt = JWTManager(app)
     
+    # --- Gestionnaires d'erreurs JWT ---
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return {"message": "Token invalide", "error": str(error)}, 401
+    
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return {"message": "Token manquant dans l'Authorization header", "error": str(error)}, 401
+    
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_data):
+        return {"message": "Token expiré", "error": "Token a expiré"}, 401
+    
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_data):
+        return {"message": "Token révoqué"}, 401
+    
     # --- Configuration CORS ---
     CORS(app, resources={
         r"/auth/*": {"origins": ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]},

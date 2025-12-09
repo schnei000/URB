@@ -9,34 +9,37 @@ project_bp = Blueprint("project_bp", __name__, url_prefix="/projects")
 @jwt_required()
 def get_projects():
     """Récupérer tous les projets de l'utilisateur connecté"""
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    
-    if not user:
-        return jsonify({"message": "Utilisateur non trouvé"}), 404
-    
-    # Pour l'instant, retourner une liste vide ou des projets simulés
-    # puisque nous n'avons pas encore de modèle Project
-    projects = [
-        {
-            "id": 1,
-            "name": "Projet Test 1",
-            "description": "Description du projet test 1",
-            "budget": 1000,
-            "status": "draft",
-            "created_at": "2025-12-05T00:00:00"
-        },
-        {
-            "id": 2,
-            "name": "Projet Test 2",
-            "description": "Description du projet test 2",
-            "budget": 2000,
-            "status": "active",
-            "created_at": "2025-12-04T00:00:00"
-        }
-    ]
-    
-    return jsonify(projects), 200
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({"message": "Utilisateur non trouvé"}), 404
+        
+        # Pour l'instant, retourner une liste vide ou des projets simulés
+        # puisque nous n'avons pas encore de modèle Project
+        projects = [
+            {
+                "id": 1,
+                "name": "Projet Test 1",
+                "description": "Description du projet test 1",
+                "budget": 1000,
+                "status": "draft",
+                "created_at": "2025-12-05T00:00:00"
+            },
+            {
+                "id": 2,
+                "name": "Projet Test 2",
+                "description": "Description du projet test 2",
+                "budget": 2000,
+                "status": "active",
+                "created_at": "2025-12-04T00:00:00"
+            }
+        ]
+        
+        return jsonify(projects), 200
+    except Exception as e:
+        return jsonify({"message": "Erreur lors du chargement des projets", "error": str(e)}), 500
 
 @project_bp.route("/<int:project_id>", methods=["GET"])
 @jwt_required()
