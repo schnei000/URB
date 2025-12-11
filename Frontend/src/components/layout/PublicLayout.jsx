@@ -1,13 +1,14 @@
 import React from 'react';
-import Navbar from '../Navbar'; // La barre de navigation publique
-import Footer from '../Footer';
+import Header from './Header';
 
-export default function PublicLayout({ children }) {
+const PublicLayout = ({ children }) => {
     return (
-        <div className="min-h-screen flex flex-col">
-            <Navbar />
+        <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow">{children}</main>
-            <Footer />
+            {/* Footer peut être ajouté ici plus tard */}
         </div>
     );
-}
+};
+
+export default PublicLayout;

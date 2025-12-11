@@ -4,26 +4,26 @@ import { useAuth } from "../hooks/useAuth";
 import { getProjects } from "../api/projectApi";
 
 const ProjectCard = ({ project }) => (
-    <div className="card hover:shadow-xl transition-all transform hover:-translate-y-1">
+    <div className="card card-hover">
         <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 flex-1 pr-2">{project.name}</h3>
-            <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+            <h3 className="text-xl font-semibold text-gray-900 flex-1 pr-2">{project.name}</h3>
+            <span className={`badge ${
                 project.status === 'draft' 
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' 
-                    : 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                    ? 'badge-warning' 
+                    : 'badge-success'
             }`}>
                 {project.status === 'draft' ? 'Brouillon' : 'Actif'}
             </span>
         </div>
         
-        <p className="text-gray-600 dark:text-slate-400 text-sm mb-4 line-clamp-2 font-light">{project.description || 'Pas de description'}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2 font-light">{project.description || 'Pas de description'}</p>
         
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-slate-700">
-            <span className="text-sm text-gray-600 dark:text-slate-400">Budget: <span className="font-semibold text-[#2A68FF]">{project.budget}€</span></span>
-            <span className="text-xs text-gray-500 dark:text-slate-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
+        <div className="flex items-center justify-between mb-4 pb-4 border-b">
+            <span className="text-sm text-gray-600">Budget: <span className="font-semibold text-primary-color">{project.budget}€</span></span>
+            <span className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString('fr-FR')}</span>
         </div>
 
-        <Link to={`/projects/${project.id}`} className="btn-primary text-center block w-full">
+        <Link to={`/projects/${project.id}`} className="btn btn-primary text-center block w-full">
             Voir détails
         </Link>
     </div>
@@ -60,11 +60,9 @@ function Projects() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="page-wrapper flex items-center justify-center">
                 <div className="text-center">
-                    <div className="inline-block animate-spin">
-                        <div className="text-4xl">🔄</div>
-                    </div>
+                    <div className="spinner text-primary-color"></div>
                     <p className="mt-4 text-gray-600 text-lg">Chargement des projets...</p>
                 </div>
             </div>
@@ -73,11 +71,11 @@ function Projects() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+            <div className="page-wrapper flex items-center justify-center px-4">
                 <div className="text-center">
                     <div className="text-4xl mb-4">⚠️</div>
-                    <p className="text-red-600 text-lg">{error}</p>
-                    <Link to="/" className="btn-primary mt-6 inline-block">
+                    <p className="text-danger-color text-lg">{error}</p>
+                    <Link to="/" className="btn btn-primary mt-6 inline-block">
                         Retour à l'accueil
                     </Link>
                 </div>
@@ -86,8 +84,8 @@ function Projects() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="max-w-6xl mx-auto">
+        <div className="page-wrapper">
+            <div className="container-custom">
                 {/* En-tête */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">📋 Tous les Projets</h1>
@@ -101,7 +99,7 @@ function Projects() {
                         placeholder="Rechercher un projet..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full input-field"
+                        className="input-field w-full"
                     />
                 </div>
 
@@ -113,7 +111,7 @@ function Projects() {
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm("")}
-                                className="btn-secondary mt-4"
+                                className="btn btn-secondary mt-4"
                             >
                                 Effacer la recherche
                             </button>

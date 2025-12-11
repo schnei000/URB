@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import './App.css';
+import './index.css';
 
 // Pages
 import Home from './pages/Home';
@@ -15,7 +16,7 @@ import NotFound from './pages/NotFound';
 
 // Composants
 import AppLayout from './components/layout/AppLayout'; // Layout pour l'application connectée
-import PublicLayout from './components/layout/PublicLayout'; // Layout pour les pages publiques
+import PublicLayout from './components/layout/PublicLayout';
 
 // Route protégée
 function ProtectedRoute({ children }) {
@@ -52,7 +53,7 @@ function App() {
                 <Routes>
                     {/* Routes publiques avec leur propre layout */}
                     <Route element={<PublicRoutes />}>
-                        <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Home />} />
+                        <Route path="/" element={<Home />} />
                         <Route path="/login" element={token ? <Navigate to="/dashboard" /> : <Login />} />
                         <Route path="/register" element={token ? <Navigate to="/dashboard" /> : <Register />} />
                     </Route>

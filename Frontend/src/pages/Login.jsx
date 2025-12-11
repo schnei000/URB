@@ -37,7 +37,7 @@ function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#1A1B2D] flex items-center justify-center px-4">
+        <div className="page-wrapper flex items-center justify-center px-4">
             <div className="w-full max-w-md">
                 <div className="card p-8">
                     <div className="text-center mb-8">
@@ -46,14 +46,14 @@ function Login() {
                     </div>
 
                     {(localError || error) && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <div className="alert alert-error mb-4">
                             {localError || error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            <label className="label">
                                 Email
                             </label>
                             <input
@@ -68,7 +68,7 @@ function Login() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                            <label className="label">
                                 Mot de passe
                             </label>
                             <input
@@ -85,7 +85,7 @@ function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                            className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                         >
                             {loading ? 'Connexion en cours...' : 'Se connecter'}
                         </button>
@@ -94,7 +94,7 @@ function Login() {
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
                             Pas encore de compte ?{' '}
-                            <Link to="/register" className="text-[#2A68FF] font-medium hover:underline">
+                            <Link to="/register" className="text-primary-color font-medium hover:underline">
                                 S'inscrire
                             </Link>
                         </p>

@@ -31,10 +31,10 @@ function ProjectDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="page-wrapper flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin text-4xl">🔄</div>
-          <p className="mt-4 text-gray-600 text-lg">Chargement...</p>
+          <div className="spinner text-primary-color"></div>
+          <p className="mt-4 text-gray-600 text-lg">Chargement du projet...</p>
         </div>
       </div>
     );
@@ -42,13 +42,13 @@ function ProjectDetail() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="page-wrapper flex items-center justify-center px-4">
         <div className="text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <p className="text-red-600 text-lg mb-6">{error}</p>
+          <p className="text-danger-color text-lg mb-6">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="btn-primary"
+            className="btn btn-primary"
           >
             ← Retour
           </button>
@@ -59,13 +59,13 @@ function ProjectDetail() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="page-wrapper flex items-center justify-center px-4">
         <div className="text-center">
           <div className="text-4xl mb-4">🔍</div>
           <p className="text-gray-600 text-lg">Projet introuvable</p>
           <button
             onClick={() => navigate(-1)}
-            className="btn-primary mt-6"
+            className="btn btn-primary mt-6"
           >
             ← Retour
           </button>
@@ -75,12 +75,12 @@ function ProjectDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="page-wrapper">
+      <div className="container-custom max-w-4xl">
         {/* Bouton retour */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center text-blue-600 hover:text-blue-800 font-medium"
+          className="btn btn-ghost mb-6"
         >
           ← Retour
         </button>
@@ -88,9 +88,9 @@ function ProjectDetail() {
         {/* Card principal */}
         <div className="card mb-8">
           {/* En-tête */}
-          <div className="mb-6 pb-6 border-b border-gray-200 dark:border-slate-700">
+          <div className="page-header">
             <div className="flex items-start justify-between mb-4">
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-slate-100">{project.name}</h1>
+              <h1 className="text-4xl font-bold text-gray-900">{project.name}</h1>
               <StatusBadge status={project.status} />
             </div>
           </div>
@@ -98,8 +98,8 @@ function ProjectDetail() {
           {/* Description */}
           {project.description && (
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-200 mb-3">Description</h2>
-              <p className="text-gray-700 dark:text-slate-300 leading-relaxed text-lg">{project.description}</p>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
+              <p className="text-gray-700 leading-relaxed text-lg">{project.description}</p>
             </div>
           )}
 
@@ -115,14 +115,14 @@ function ProjectDetail() {
             {project.client_name && (
               <div className="p-4 bg-gray-100 rounded-lg">
                 <p className="text-gray-600 text-sm mb-1">👤 Client</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-slate-200">{project.client_name}</p>
+                <p className="text-lg font-semibold text-gray-900">{project.client_name}</p>
               </div>
             )}
 
             {project.created_at && (
               <div className="p-4 bg-gray-100 rounded-lg">
                 <p className="text-gray-600 text-sm mb-1">📌 Créé le</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-slate-200">
+                <p className="text-lg font-semibold text-gray-900">
                   {new Date(project.created_at).toLocaleDateString('fr-FR')}
                 </p>
               </div>
@@ -132,8 +132,8 @@ function ProjectDetail() {
 
         {/* Actions */}
         <div className="flex gap-4">
-          <button className="btn-primary">💬 Contacter</button>
-          <button className="btn-secondary">⭐ Ajouter aux favoris</button>
+          <button className="btn btn-primary">💬 Contacter</button>
+          <button className="btn btn-secondary">⭐ Ajouter aux favoris</button>
         </div>
       </div>
     </div>
@@ -142,21 +142,21 @@ function ProjectDetail() {
 
 const StatusBadge = ({ status }) => {
   const statusConfig = {
-    draft: { label: '📝 Brouillon', classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' },
-    active: { label: '✅ Actif', classes: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
-    closed: { label: '🔒 Fermé', classes: 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-300' },
+    draft: { label: '📝 Brouillon', badgeClass: 'badge-warning' },
+    active: { label: '✅ Actif', badgeClass: 'badge-success' },
+    closed: { label: '🔒 Fermé', badgeClass: 'badge-info' }, // Assuming info for closed
   };
 
   const config = statusConfig[status] || statusConfig.closed;
 
   return (
-    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${config.classes}`}>
+    <span className={`badge ${config.badgeClass} text-sm`}>
       {config.label}
     </span>
   );
 };
 
-const InfoBlock = ({ emoji, label, value, valueClass = 'text-gray-900 dark:text-slate-100' }) => {
+const InfoBlock = ({ emoji, label, value, valueClass = 'text-gray-900' }) => {
   if (!value) return null;
 
   return (

@@ -70,22 +70,22 @@ function Register() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-8">
-            <div className="w-full max-w-md">
-                <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="w-full max-w-md ">
+                <div className="card p-8">
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900">ProjectHub</h1>
                         <p className="text-gray-600 mt-2">Créer un nouveau compte</p>
                     </div>
 
                     {(localError || error) && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <div className="alert alert-error mb-4">
                             {localError || error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="label">
                                 Nom d'utilisateur
                             </label>
                             <input
@@ -100,7 +100,7 @@ function Register() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="label">
                                 Email
                             </label>
                             <input
@@ -115,7 +115,7 @@ function Register() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="label">
                                 Mot de passe
                             </label>
                             <input
@@ -130,7 +130,7 @@ function Register() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="label">
                                 Confirmer le mot de passe
                             </label>
                             <input
@@ -145,7 +145,7 @@ function Register() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="label">
                                 Rôle
                             </label>
                             <select 
@@ -162,7 +162,7 @@ function Register() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed py-3 text-lg"
+                            className="w-full btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed py-3 text-lg"
                         >
                             {loading ? "Inscription en cours..." : "S'inscrire"}
                         </button>
@@ -171,7 +171,7 @@ function Register() {
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
                             Déjà inscrit ?{' '}
-                            <Link to="/login" className="text-blue-600 font-medium hover:underline">
+                            <Link to="/login" className="text-primary-color font-medium hover:underline">
                                 Se connecter
                             </Link>
                         </p>

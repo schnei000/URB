@@ -1,45 +1,69 @@
+import PropTypes from 'prop-types';
+
 export default function Button({
   children,
   onClick,
   type = "button",
   variant = "primary",
+  size = "md",
   disabled = false,
-  style = {}
+  loading = false,
+  icon,
+  iconPosition = "left",
+  fullWidth = false,
+  className = ""
 }) {
-  // Définition des styles selon le variant
+  const baseClasses = "btn";
+  
   const variants = {
-    primary: {
-      background: "#2563eb",
-      color: "white"
-    },
-    danger: {
-      background: "#dc2626",
-      color: "white"
-    },
-    outline: {
-      background: "transparent",
-      border: "1px solid #2563eb",
-      color: "#2563eb"
-    }
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    outline: "btn-outline",
+    danger: "btn-danger",
+    ghost: "btn-ghost"
   };
+
+  const sizes = {
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-5 py-2.5 text-base",
+    lg: "px-6 py-3 text-lg"
+  };
+
+  const widthClass = fullWidth ? "w-full" : "";
 
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
-      style={{
-        padding: "10px 18px",
-        borderRadius: "6px",
-        border: "none",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.6 : 1,
-        fontSize: "15px",
-        ...variants[variant],
-        ...style
-      }}
+      disabled={disabled || loading}
+      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`}
     >
-      {children}
+      {loading ? (
+        <>
+          <span className="spinner border-2 h-4 w-4" />
+          Chargement...
+        </>
+      ) : (
+        <>
+          {icon && iconPosition === "left" && <span>{icon}</span>}
+          {children}
+          {icon && iconPosition === "right" && <span>{icon}</span>}
+        </>
+      )}
     </button>
   );
 }
+
+Button.propTypes = {
+  children: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
+  type: PropTypes.oneOf(["button", "submit", "reset"]),
+  variant: PropTypes.oneOf(["primary", "secondary", "outline", "danger", "ghost"]),
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
+  disabled: PropTypes.bool,
+  loading: PropTypes.bool,
+  icon: PropTypes.node,
+  iconPosition: PropTypes.oneOf(["left", "right"]),
+  fullWidth: PropTypes.bool,
+  className: PropTypes.string
+};

@@ -80,51 +80,51 @@ function AdminProjects() {
 
                 {/* Tableau */}
                 {filteredProjects.length === 0 ? (
-                    <div className="text-center py-16 bg-white rounded-lg shadow">
+                    <div className="empty-state-card">
                         <div className="text-5xl mb-4">📭</div>
                         <p className="text-gray-600 text-lg">Aucun projet trouvé</p>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
+                    <div className="table-container">
                         <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gray-100 border-b border-gray-200">
+                            <table className="table w-full">
+                                <thead>
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Nom du projet</th>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Budget</th>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Statut</th>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Créé le</th>
-                                        <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Actions</th>
+                                        <th>Nom du projet</th>
+                                        <th>Budget</th>
+                                        <th>Statut</th>
+                                        <th>Créé le</th>
+                                        <th className="text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-200">
+                                <tbody>
                                     {filteredProjects.map((project) => (
-                                        <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{project.name}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{project.budget}€</td>
-                                            <td className="px-6 py-4 text-sm">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                        <tr key={project.id}>
+                                            <td className="text-sm font-medium text-gray-900">{project.name}</td>
+                                            <td className="text-sm text-gray-600">{project.budget}€</td>
+                                            <td className="text-sm">
+                                                <span className={`badge ${
                                                     project.status === 'draft' 
-                                                        ? 'bg-yellow-100 text-yellow-800' 
-                                                        : 'bg-green-100 text-green-800'
+                                                        ? 'badge-warning' 
+                                                        : 'badge-success'
                                                 }`}>
                                                     {project.status === 'draft' ? '📝 Brouillon' : '✅ Actif'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                            <td className="text-sm text-gray-600">
                                                 {new Date(project.created_at).toLocaleDateString('fr-FR')}
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-2">
+                                            <td className="text-right">
+                                                <div className="table-actions">
                                                     <button
                                                         onClick={() => handleEdit(project)}
-                                                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                                        className="btn-small-info"
                                                     >
                                                         ✏️ Éditer
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(project.id)}
-                                                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                                                        className="btn-small-danger"
                                                     >
                                                         🗑️ Supprimer
                                                     </button>
